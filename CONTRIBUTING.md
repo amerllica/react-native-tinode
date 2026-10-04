@@ -100,13 +100,23 @@ Our pre-commit hooks verify that your commit message matches this format when co
 
 ### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+Releases are published by GitHub Actions (`.github/workflows/release.yml`) when a signed version tag is pushed.
+Only maintainers can do this.
 
-To publish new versions, run the following:
+1. In a pull request to `main`, bump `version` in `package.json` and `PACKAGE_VERSION` in `src/core/config.ts`.
+   A test fails if the two differ.
+2. After the pull request is merged, tag the merge commit on `main` with a GPG-signed tag. The tag name and message
+   are the version:
 
-```sh
-yarn release
-```
+   ```sh
+   git switch main && git pull
+   git tag -s 0.2.0 -m "0.2.0"
+   git push origin 0.2.0
+   ```
+
+The workflow checks the tag signature, that the tag is on `main` and that it matches `package.json`. It then runs
+lint, typecheck, tests and the build, publishes to npm and creates a GitHub release. A version with a pre-release
+part, such as `0.2.0-beta.1`, is published under the `next` dist-tag.
 
 
 ### Scripts
