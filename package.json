@@ -50,7 +50,7 @@
     "url": "git+https://github.com/amerllica/react-native-tinode.git"
   },
   "author": "amerllica <amerllica@gmail.com> (https://github.com/amerllica)",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/amerllica/react-native-tinode/issues"
   },

@@ -1,0 +1,7 @@
+react-native-tinode
+Copyright 2026 amerllica
+
+This product is a TypeScript re-implementation of tinode-js (tinode-sdk),
+https://github.com/tinode/tinode-js, Copyright Tinode LLC, licensed under the
+Apache License, Version 2.0. The source was ported module by module and modified
+to run on React Native (Hermes) as well as in web browsers.
