@@ -131,13 +131,16 @@ async function openSocket(conn: Connection): Promise<FakeWebSocket> {
   return socket;
 }
 
+function removeBackoffJitter() {
+  jest.spyOn(Math, 'random').mockReturnValue(0);
+}
+
 describe('Connection', () => {
   beforeEach(() => {
     FakeWebSocket.instances = [];
     FakeRequest.instances = [];
     Connection.setNetworkProviders(FakeWebSocket, FakeRequest);
     jest.useFakeTimers();
-    jest.spyOn(Math, 'random').mockReturnValue(0);
   });
 
   afterEach(() => {
@@ -254,6 +257,7 @@ describe('Connection', () => {
     });
 
     test('reconnects with exponential backoff after an unexpected close', async () => {
+      removeBackoffJitter();
       const conn = makeWsConnection();
       const onDisconnect = jest.fn();
       const iterations: number[] = [];
@@ -282,6 +286,7 @@ describe('Connection', () => {
     });
 
     test('backoffReset restarts the delay sequence', async () => {
+      removeBackoffJitter();
       const conn = makeWsConnection();
       const iterations: number[] = [];
       conn.onAutoreconnectIteration = (timeout) => {
@@ -311,6 +316,7 @@ describe('Connection', () => {
     });
 
     test('reports a skipped attempt when closed during the wait', async () => {
+      removeBackoffJitter();
       const conn = makeWsConnection();
       const iterations: number[] = [];
       conn.onAutoreconnectIteration = (timeout) => {
@@ -389,6 +395,7 @@ describe('Connection', () => {
     });
 
     test('server error disconnects and schedules a reconnect', async () => {
+      removeBackoffJitter();
       const conn = makeLpConnection();
       const onDisconnect = jest.fn();
       conn.onDisconnect = onDisconnect;
