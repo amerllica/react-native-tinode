@@ -219,19 +219,17 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Setup npm registry
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version-file: .nvmrc
-          registry-url: https://registry.npmjs.org
-
       - name: Update npm for trusted publishing
-        run: npm install --global npm@^11.5.1
+        run: npm install --global npm@latest
 
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "react-native-tinode@$VERSION" version > /dev/null 2>&1; then
+            echo "react-native-tinode@$VERSION is already on npm, skipping publish"
+          else
+            npm publish --provenance
+          fi
 
       - name: Create GitHub release
         env:

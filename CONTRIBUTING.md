@@ -115,7 +115,9 @@ Only maintainers can do this.
    ```
 
 The `release` job waits for every CI job to pass, then checks that the tag is on `main` and that it matches
-`package.json`. It publishes to npm and creates a GitHub release. Only tags of the form
+`package.json`. It publishes to npm with [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (no token,
+with provenance) and creates a GitHub release. If that version is already on npm, it skips the publish and only
+creates the GitHub release. Only tags of the form
 `vX.Y.Z` with numeric `X`, `Y` and `Z` start a release.
 
 
