@@ -1,6 +1,6 @@
 {
   "name": "react-native-tinode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tinode chat SDK for React Native and web, rewritten in TypeScript, with React hooks",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

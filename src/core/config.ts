@@ -1,4 +1,4 @@
-export const PACKAGE_VERSION = '0.1.0';
+export const PACKAGE_VERSION = '0.1.1';
 export const PROTOCOL_VERSION = '0';
 export const VERSION = '0.25.4';
 export const LIBRARY = 'react-native-tinode/' + PACKAGE_VERSION;
