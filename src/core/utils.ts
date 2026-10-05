@@ -37,7 +37,7 @@ function padNumber(val: number, size = 2): string {
   return String(val).padStart(size, '0');
 }
 
-export function jsonParseHelper(key: string, val: unknown): unknown {
+export function reviveTimestamp(key: string, val: unknown): unknown {
   if (
     typeof val === 'string' &&
     val.length >= MIN_TIMESTAMP_LENGTH &&
@@ -48,10 +48,15 @@ export function jsonParseHelper(key: string, val: unknown): unknown {
     if (!isNaN(date.getTime())) {
       return date;
     }
-  } else if (key === 'acs' && typeof val === 'object') {
-    return new AccessMode(val);
   }
   return val;
+}
+
+export function jsonParseHelper(key: string, val: unknown): unknown {
+  if (key === 'acs' && typeof val === 'object') {
+    return new AccessMode(val);
+  }
+  return reviveTimestamp(key, val);
 }
 
 export function isUrlRelative(url: string | null | undefined): boolean {
