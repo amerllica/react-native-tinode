@@ -33,8 +33,14 @@ no SDK classes in it. `PersistentCache` does all Topic ↔ record mapping and ke
 
 - Web: `IndexedDBAdapter` uses the same database name, version and schema as upstream, so an
   existing browser cache stays valid.
-- Native: no adapter ships in v1, so the library has zero native dependencies and runs in Expo Go.
-  Pass `storage` in the config to use your own adapter (SQLite, MMKV, ...).
+- Native: `KeyValueAdapter` wraps any key-value store the app already has (`expo-sqlite/kv-store`,
+  MMKV through `fromMMKV`, AsyncStorage). The library imports none of them, so it keeps zero
+  dependencies and still runs in Expo Go. The store's shape is a TypeScript interface, and a test
+  checks it against each store's published typings.
+- `KeyValueAdapter` extends `MemoryAdapter`: it loads the whole cache on open and writes every
+  change through. That is fine for contacts and recent chats. A SQLite adapter for large offline
+  histories is planned for 0.2.0 (issue #1).
+- No eviction: the cache keeps every message it has seen, like the upstream web client.
 - `MemoryAdapter` exists for tests and for a session-only cache.
 
 `Tinode.setDatabaseProvider()` from upstream is removed. Use the `storage` config key.

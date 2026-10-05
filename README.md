@@ -8,7 +8,7 @@ depend on browser APIs, plus a set of React hooks.
 - iOS, Android and web. Works in Expo Go and in bare React Native.
 - No native code and no runtime dependencies.
 - Typed protocol messages, topics, Drafty documents and contact cards.
-- Pluggable storage: IndexedDB on the web, bring your own adapter on native.
+- Offline cache: IndexedDB on the web; `expo-sqlite`, MMKV or AsyncStorage on native, in one line.
 
 ## Installation
 
@@ -95,8 +95,8 @@ one unmounts.
 Tinode callbacks such as `onData` hold a single function. The hooks do not overwrite your own handlers: listeners are
 added through `attach(target, 'onData', fn)`, which you can use too.
 
-`useLogin` keeps the auth token in memory only. To stay signed in across launches, save `token` yourself (for example
-with `expo-secure-store`) and call `loginToken` on start.
+`useLogin` keeps the auth token in memory only. To stay signed in across launches, see
+[docs/persistence/auth-token.md](docs/persistence/auth-token.md).
 
 ## Reconnecting
 
@@ -109,17 +109,28 @@ import NetInfo from '@react-native-community/netinfo';
 <TinodeProvider config={config} netInfo={NetInfo}>
 ```
 
-## Storage
+## Persistence
 
-By default nothing is cached (`persist: false`).
+By default nothing is cached (`persist: false`). With a cache, your app can show chats at once on start, and chats
+opened before stay readable offline.
 
-- **Web:** `persist: true` uses IndexedDB, with the same database as the official web client.
-- **Native:** implement `StorageAdapter` (for example on top of SQLite or MMKV) and pass it as `storage`.
-  `MemoryAdapter` is included as a reference and for tests.
+| Your app | Store | Guide |
+| --- | --- | --- |
+| Expo (Expo Go or a development build) | `expo-sqlite/kv-store` | [docs/persistence/expo-sqlite.md](docs/persistence/expo-sqlite.md) |
+| Bare React Native | `react-native-mmkv` | [docs/persistence/mmkv.md](docs/persistence/mmkv.md) |
+| Already uses AsyncStorage | `@react-native-async-storage/async-storage` | [docs/persistence/async-storage.md](docs/persistence/async-storage.md) |
+| Web | nothing to install, `persist: true` uses IndexedDB | [docs/persistence/README.md](docs/persistence/README.md#web) |
 
 ```ts
-createTinode({ ...config, persist: true, storage: new MySqliteAdapter() });
+import Storage from 'expo-sqlite/kv-store';
+import { createTinode, KeyValueAdapter } from 'react-native-tinode';
+
+createTinode({ ...config, persist: true, storage: new KeyValueAdapter(Storage) });
 ```
+
+The store is your app's dependency, not this library's. To keep users signed in across launches, see
+[docs/persistence/auth-token.md](docs/persistence/auth-token.md). How the cache works, sharing a store and limits:
+[docs/persistence/README.md](docs/persistence/README.md).
 
 ## Files
 
