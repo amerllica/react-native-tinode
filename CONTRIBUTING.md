@@ -100,22 +100,22 @@ Our pre-commit hooks verify that your commit message matches this format when co
 
 ### Publishing to npm
 
-Releases are published by the `release` job in `.github/workflows/ci.yml` when a signed version tag is pushed.
+Releases are published by the `release` job in `.github/workflows/ci.yml` when a version tag is pushed.
 Only maintainers can do this.
 
 1. In a pull request to `main`, bump `version` in `package.json` and `PACKAGE_VERSION` in `src/core/config.ts`.
    A test fails if the two differ.
-2. After the pull request is merged, tag the merge commit on `main` with a GPG-signed tag named `vX.Y.Z`, where
+2. After the pull request is merged, tag the merge commit on `main` with a tag named `vX.Y.Z`, where
    `X.Y.Z` is the version:
 
    ```sh
    git switch main && git pull
-   git tag -s v0.2.0 -m "0.2.0"
+   git tag v0.2.0 -m "0.2.0"
    git push origin v0.2.0
    ```
 
-The `release` job waits for every CI job to pass, then checks the tag signature, that the tag is on `main` and that
-it matches `package.json`. It publishes to npm and creates a GitHub release. Only tags of the form
+The `release` job waits for every CI job to pass, then checks that the tag is on `main` and that it matches
+`package.json`. It publishes to npm and creates a GitHub release. Only tags of the form
 `vX.Y.Z` with numeric `X`, `Y` and `Z` start a release.
 
 

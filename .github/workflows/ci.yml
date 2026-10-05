@@ -201,20 +201,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch the annotated tag
-        run: git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
-
-      - name: Verify tag signature
-        env:
-          GPG_PUBLIC_KEY: ${{ vars.GPG_PUBLIC_KEY }}
-        run: |
-          if [ -z "$GPG_PUBLIC_KEY" ]; then
-            echo "::error::Repository variable GPG_PUBLIC_KEY is not set"
-            exit 1
-          fi
-          echo "$GPG_PUBLIC_KEY" | gpg --batch --import
-          git tag -v "$GITHUB_REF_NAME"
-
       - name: Check the tag is on main
         run: |
           if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
