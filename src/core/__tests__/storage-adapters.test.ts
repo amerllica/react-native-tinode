@@ -1,6 +1,8 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, test } from '@jest/globals';
+import { AsyncStore, SyncStore } from '../__fixtures__/key-value-stores';
 import IndexedDBAdapter from '../storage/indexeddb-adapter';
+import KeyValueAdapter from '../storage/key-value-adapter';
 import MemoryAdapter from '../storage/memory-adapter';
 import { resolveStorageAdapter } from '../storage/resolve-adapter';
 import { MAX_SEQ, type StorageAdapter } from '../storage/storage-adapter';
@@ -19,6 +21,14 @@ test('persist picks IndexedDB when the browser has it', () => {
 describe.each([
   ['MemoryAdapter', () => new MemoryAdapter()],
   ['IndexedDBAdapter', () => new IndexedDBAdapter()],
+  [
+    'KeyValueAdapter over a sync store',
+    () => new KeyValueAdapter(new SyncStore()),
+  ],
+  [
+    'KeyValueAdapter over an async store',
+    () => new KeyValueAdapter(new AsyncStore()),
+  ],
 ])('%s', (_name, create: () => StorageAdapter) => {
   let adapter: StorageAdapter;
 

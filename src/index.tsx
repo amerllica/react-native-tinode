@@ -75,6 +75,13 @@ export type {
 } from './core/storage/storage-adapter';
 export { default as MemoryAdapter } from './core/storage/memory-adapter';
 export { default as IndexedDBAdapter } from './core/storage/indexeddb-adapter';
+export {
+  default as KeyValueAdapter,
+  fromMMKV,
+  type KeyValueAdapterOptions,
+  type KeyValueStore,
+  type MMKVLike,
+} from './core/storage/key-value-adapter';
 
 export * from './react';
 export {
