@@ -7,6 +7,7 @@ import {
   type LoginRequest,
 } from './screens/LoginScreen';
 import { SignedInScreen } from './screens/SignedInScreen';
+import { storage } from './storage';
 
 const APP_NAME = 'TinodeExample/1.0';
 const IOS_NOTCH_INSET = 56;
@@ -44,7 +45,8 @@ function Session({
         host: request.host,
         apiKey: request.apiKey,
         secure: request.secure,
-        persist: Platform.OS === 'web',
+        persist: true,
+        storage,
       }),
     [request.host, request.apiKey, request.secure]
   );

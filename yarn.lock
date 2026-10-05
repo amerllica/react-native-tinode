@@ -3820,6 +3820,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"await-lock@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "await-lock@npm:2.2.2"
+  checksum: 10c0/bedf00dad44c6325a655bf3bd523ab9e1ce41023da6a8c379990c76ac1d942ac7e5301627ab84ba37917ab5247506ba429b7f6e4bf77074093f255571b9ad5ee
+  languageName: node
+  linkType: hard
+
 "babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
@@ -5609,6 +5616,19 @@ __metadata:
   version: 57.0.3
   resolution: "expo-server@npm:57.0.3"
   checksum: 10c0/541d9b319ba513df718868c87a8d57e30161c3879b7d5b43f308923290ce5ee349a1b3469901c2f382984b6595f4cf6beaee9d870f5eb874c45ddc0a42a13e56
+  languageName: node
+  linkType: hard
+
+"expo-sqlite@npm:~57.0.3":
+  version: 57.0.3
+  resolution: "expo-sqlite@npm:57.0.3"
+  dependencies:
+    await-lock: "npm:^2.2.2"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/1b3e938c1481fd3849641d5abf635ecaa82c992343738857edbe530f4379f7c2d4d246392e000b5dc08c5ab6ebef0b14433a8b4e79d93b2a98dc3a9938b9ae80
   languageName: node
   linkType: hard
 
@@ -9246,6 +9266,7 @@ __metadata:
   dependencies:
     "@expo/metro-runtime": "npm:~57.0.16"
     expo: "npm:~57.0.26"
+    expo-sqlite: "npm:~57.0.3"
     expo-status-bar: "npm:~57.0.1"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
