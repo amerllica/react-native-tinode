@@ -11,7 +11,6 @@ export {
   type TinodeLifecycleOptions,
   type TinodeStoresProviderProps,
 } from './TinodeStoresProvider';
-export { type NetInfoLike, type NetInfoStateLike } from './netinfo';
 export { useTinode } from './useTinode';
 export { useConnection, type ConnectionInfo } from './useConnection';
 export { useLogin, type LoginApi } from './useLogin';

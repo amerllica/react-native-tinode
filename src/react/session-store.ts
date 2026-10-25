@@ -1,4 +1,4 @@
-import type { AuthToken } from '../core/types';
+import type { AuthToken } from '../sdk';
 import { ExternalStore, detachAll, ignore } from './external-store';
 import { attach } from './multiplex';
 import type { ClientPort } from './ports';

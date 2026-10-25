@@ -1,5 +1,5 @@
 import { useMemo, useSyncExternalStore } from 'react';
-import { TOPIC_ME } from '../core/config';
+import { TOPIC_ME } from './constants';
 import { ContactsStore, type Contact } from './contacts-store';
 import { useTinodeStores } from './context';
 import { useTopic } from './useTopic';

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { Tinode } from '../core/tinode';
+import type { Tinode } from '../sdk';
 import { TinodeClientContext } from './context';
 import { createTinode, type CreateTinodeOptions } from './createTinode';
 import {

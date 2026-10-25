@@ -103,8 +103,7 @@ Our pre-commit hooks verify that your commit message matches this format when co
 Releases are published by the `release` job in `.github/workflows/ci.yml` when a version tag is pushed.
 Only maintainers can do this.
 
-1. In a pull request to `main`, bump `version` in `package.json` and `PACKAGE_VERSION` in `src/core/config.ts`.
-   A test fails if the two differ.
+1. In a pull request to `main`, bump `version` in `package.json`.
 2. After the pull request is merged, tag the merge commit on `main` with a tag named `vX.Y.Z`, where
    `X.Y.Z` is the version:
 

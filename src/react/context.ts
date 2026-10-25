@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { Tinode } from '../core/tinode';
+import type { Tinode } from '../sdk';
 import type { ClientPort } from './ports';
 import type { SessionStore } from './session-store';
 import type { TopicRegistry } from './topic-registry';

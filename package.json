@@ -1,7 +1,7 @@
 {
   "name": "react-native-tinode",
   "version": "0.1.1",
-  "description": "Tinode chat SDK for React Native and web, rewritten in TypeScript, with React hooks",
+  "description": "React and React Native hooks for Tinode chat, on top of the official tinode-sdk",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -53,6 +53,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {
+    "tinode-sdk": "github:tinode/tinode-js#commit=70436161b61efb1087de69f612692019f13fb2de"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^21.2.0",
     "@eslint/compat": "^2.1.0",
@@ -70,7 +73,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-ft-flow": "^3.0.11",
     "eslint-plugin-prettier": "^5.5.6",
-    "fake-indexeddb": "^6.2.5",
     "jest": "^29.7.0",
     "lefthook": "^2.1.10",
     "prettier": "^3.9.6",
@@ -105,7 +107,8 @@
           "project": "tsconfig.build.json"
         }
       ]
-    ]
+    ],
+    "exclude": "{**/{__tests__,__fixtures__,__mocks__}/**,**/*.d.ts}"
   },
   "jest": {
     "preset": "@react-native/jest-preset",
@@ -143,5 +146,8 @@
     ],
     "version": "0.63.1"
   },
-  "sideEffects": false
+  "sideEffects": [
+    "./src/platform/**",
+    "./lib/module/platform/**"
+  ]
 }

@@ -13,13 +13,13 @@ Use a secure store for the token, not the chat cache:
 ```tsx
 import * as SecureStore from 'expo-secure-store';
 import { useEffect } from 'react';
-import { CommError, useLogin } from 'react-native-tinode';
+import { isCommError, useLogin } from 'react-native-tinode';
 
 const TOKEN_KEY = 'tinode-token';
 const UNAUTHORIZED = 401;
 
 function isRejectedToken(error: unknown) {
-  return error instanceof CommError && error.code === UNAUTHORIZED;
+  return isCommError(error) && error.code === UNAUTHORIZED;
 }
 
 export function useRememberedLogin() {

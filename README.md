@@ -1,13 +1,11 @@
 # react-native-tinode
 
-[Tinode](https://github.com/tinode/chat) chat client for React Native and the web, written in TypeScript.
-
-It is a port of the official JavaScript SDK ([tinode-js](https://github.com/tinode/tinode-js) v0.25.4) that does not
-depend on browser APIs, plus a set of React hooks.
+React hooks and providers for [Tinode](https://github.com/tinode/chat) chat on React Native and the web, on top of
+the official JavaScript SDK, [tinode-sdk](https://github.com/tinode/tinode-js).
 
 - iOS, Android and web. Works in Expo Go and in bare React Native.
-- No native code and no runtime dependencies.
-- Typed protocol messages, topics, Drafty documents and contact cards.
+- No native code.
+- TypeScript types for the whole SDK: protocol messages, topics, Drafty documents and contact cards.
 - Offline cache: IndexedDB on the web; `expo-sqlite`, MMKV or AsyncStorage on native, in one line.
 
 ## Installation
@@ -15,6 +13,11 @@ depend on browser APIs, plus a set of React hooks.
 ```sh
 yarn add react-native-tinode
 ```
+
+`tinode-sdk` comes with it. Until the next `tinode-sdk` release is on npm, it is installed from a pinned commit of
+the [tinode-js](https://github.com/tinode/tinode-js) `devel` branch, so installing needs `git` and `npm` on the
+machine and access to github.com (all three are on CI runners and EAS build images). Networks that block git or
+GitHub cannot install it until then.
 
 ## Quick start
 
@@ -60,7 +63,7 @@ On the Android emulator the example rewrites `localhost` to `10.0.2.2`.
 
 ## Using the client directly
 
-The core API follows tinode-js, so its [documentation](https://tinode.github.io/js-api/) applies.
+`Tinode` is the `tinode-sdk` client, so its [documentation](https://tinode.github.io/js-api/) applies.
 
 ```ts
 import { createTinode } from 'react-native-tinode';
@@ -100,14 +103,17 @@ added through `attach(target, 'onData', fn)`, which you can use too.
 
 ## Reconnecting
 
-The provider reconnects when the app comes back to the foreground. To also reconnect when the network comes back,
-pass NetInfo:
+The provider reconnects when the app comes back to the foreground. When the connection drops, the client retries with
+a growing delay. To retry at once when the network comes back, pass NetInfo in the config:
 
 ```tsx
 import NetInfo from '@react-native-community/netinfo';
 
-<TinodeProvider config={config} netInfo={NetInfo}>
+<TinodeProvider config={{ ...config, netInfo: NetInfo }}>
 ```
+
+`netInfo` is anything with `addEventListener(listener)` that returns an unsubscribe function and calls the listener
+with `{ isConnected }`, so a small wrapper over the browser `online` and `offline` events works on the web too.
 
 ## Persistence
 
@@ -137,7 +143,8 @@ The store is your app's dependency, not this library's. To keep users signed in 
 `tinode.getLargeFileHelper()` uploads and downloads attachments.
 
 - `upload()` accepts a web `Blob`/`File` or a React Native file object `{ uri, name, type }`.
-- `download()` saves the file in the browser. On native it resolves with the `Blob`, and saving it is up to you.
+- `download()` saves the file in the browser. It does not work on native yet: the current `tinode-sdk` needs a DOM
+  for it. Until the fix is released upstream, download attachments yourself with `fetch` and the auth token.
 
 ## Push notifications
 
@@ -151,11 +158,16 @@ registerDeviceToken(tinode, await messaging().getToken());
 With Expo, use `(await Notifications.getDevicePushTokenAsync()).data`. The server sends FCM data messages; how to
 show them is up to the app.
 
-## Differences from tinode-js
+## What this package adds to tinode-sdk
 
-- No global polyfills. Nothing touches `window`, `document` or `navigator` without checking first.
-- `Tinode.setDatabaseProvider()` is gone. Use the `storage` option.
-- A number of upstream bugs are fixed. See [docs/DECISIONS.md](docs/DECISIONS.md) for the reasoning behind the port.
+- Providers and hooks with shared topic subscriptions, paging and typing state.
+- TypeScript types. `tinode-sdk` is plain JavaScript and ships no types.
+- Two small polyfills for Hermes, installed only when missing: `Intl.Segmenter` (grapheme level only, used by Drafty)
+  and a UTF-8 `TextDecoder` (used by vCard import). Import `react-native-tinode` before `tinode-sdk` so they are in
+  place when the SDK loads.
+- `isCommError(error)`, because `tinode-sdk` does not export its `CommError` class.
+
+See [docs/DECISIONS.md](docs/DECISIONS.md) for the reasoning.
 
 ## Contributing
 
@@ -165,4 +177,4 @@ show them is up to the app.
 
 ## License
 
-Apache-2.0. Based on [tinode-js](https://github.com/tinode/tinode-js) by Tinode LLC, see [NOTICE](NOTICE).
+Apache-2.0. Uses [tinode-sdk](https://github.com/tinode/tinode-js) by Tinode LLC, see [NOTICE](NOTICE).

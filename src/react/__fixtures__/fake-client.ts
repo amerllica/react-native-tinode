@@ -5,7 +5,7 @@ import type {
   Message,
   PubMessage,
   SeqRange,
-} from '../../core/types';
+} from '../../sdk';
 import type {
   ClientPort,
   ContactPort,

@@ -1,14 +1,28 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 import { act } from 'react';
+import type { NetInfoLike, NetInfoStateLike } from '../../sdk';
 import { mount } from '../__fixtures__/render-hook';
 import { createTinode, detectPlatform } from '../createTinode';
-import type { NetInfoLike, NetInfoStateLike } from '../netinfo';
 import { TinodeProvider } from '../TinodeProvider';
 import { useConnection, type ConnectionInfo } from '../useConnection';
 import { useTinode } from '../useTinode';
-import { FakeClient } from '../__fixtures__/fake-client';
-import { TinodeStoresProvider } from '../TinodeStoresProvider';
-import { useLogin } from '../useLogin';
+
+class FakeWebSocket {
+  readyState = 0;
+  onopen = null;
+  onclose = null;
+  onerror = null;
+  onmessage = null;
+  close(): void {}
+  send(): void {}
+}
+
+const config = {
+  appName: 'Test/1.0',
+  host: 'localhost:6060',
+  apiKey: 'key',
+  network: { WebSocket: FakeWebSocket },
+};
 
 class FakeNetInfo implements NetInfoLike {
   listener: ((state: NetInfoStateLike) => void) | null = null;
@@ -38,10 +52,7 @@ describe('TinodeProvider', () => {
     }
 
     const renderer = await mount(
-      <TinodeProvider
-        config={{ appName: 'Test/1.0', host: 'localhost:6060', apiKey: 'key' }}
-        reconnectOnForeground={false}
-      >
+      <TinodeProvider config={config} reconnectOnForeground={false}>
         <Probe />
       </TinodeProvider>
     );
@@ -52,11 +63,7 @@ describe('TinodeProvider', () => {
   });
 
   test('accepts a client built with createTinode', async () => {
-    const client = createTinode({
-      appName: 'Test/1.0',
-      host: 'localhost:6060',
-      apiKey: 'key',
-    });
+    const client = createTinode(config);
     const seen: { client?: unknown } = {};
 
     function Probe() {
@@ -74,34 +81,18 @@ describe('TinodeProvider', () => {
     await act(async () => renderer.unmount());
   });
 
-  test('reconnects when the network comes back after a login', async () => {
-    const client = new FakeClient();
+  test('passes netInfo to the client, which retries when the network is back', () => {
     const netInfo = new FakeNetInfo();
-    const session: { login?: ReturnType<typeof useLogin> } = {};
+    const client = createTinode({ ...config, netInfo });
+    const retryNow = jest
+      .spyOn(client._connection, 'retryNow')
+      .mockImplementation(() => {});
 
-    function Probe() {
-      session.login = useLogin();
-      return null;
-    }
+    netInfo.listener?.({ isConnected: true });
+    expect(retryNow).not.toHaveBeenCalled();
 
-    await mount(
-      <TinodeStoresProvider client={client} netInfo={netInfo}>
-        <Probe />
-      </TinodeStoresProvider>
-    );
-
-    await act(async () => netInfo.listener?.({ isConnected: false }));
-    await act(async () => netInfo.listener?.({ isConnected: true }));
-    expect(client.reconnectCalls).toBe(0);
-
-    await act(async () => session.login?.loginBasic('alice', 'alice123'));
-    await act(async () => {
-      client.disconnect();
-      client.onDisconnect?.();
-    });
-    await act(async () => netInfo.listener?.({ isConnected: false }));
-    await act(async () => netInfo.listener?.({ isConnected: true }));
-
-    expect(client.reconnectCalls).toBe(1);
+    netInfo.listener?.({ isConnected: false });
+    netInfo.listener?.({ isConnected: true });
+    expect(retryNow).toHaveBeenCalledTimes(1);
   });
 });

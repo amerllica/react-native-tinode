@@ -1,5 +1,5 @@
 import { useMemo, useSyncExternalStore } from 'react';
-import type { AuthToken } from '../core/types';
+import type { AuthToken } from '../sdk';
 import { useTinodeStores } from './context';
 
 export interface LoginApi {

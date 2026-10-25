@@ -14,11 +14,7 @@ export interface RenderedHook<R> {
 
 export function withClient(client: ClientPort, children: ReactElement) {
   return (
-    <TinodeStoresProvider
-      client={client}
-      reconnectOnForeground={false}
-      netInfo={null}
-    >
+    <TinodeStoresProvider client={client} reconnectOnForeground={false}>
       {children}
     </TinodeStoresProvider>
   );

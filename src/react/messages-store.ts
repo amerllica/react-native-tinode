@@ -1,5 +1,5 @@
-import { LOCAL_SEQID } from '../core/config';
-import type { Message } from '../core/types';
+import type { Message } from '../sdk';
+import { LOCAL_SEQID } from './constants';
 import { ExternalStore, detachAll } from './external-store';
 import { attach } from './multiplex';
 import type { MessageContent, TopicPort } from './ports';
