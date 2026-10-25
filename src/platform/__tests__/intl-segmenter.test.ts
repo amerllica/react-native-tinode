@@ -32,6 +32,31 @@ describe('installIntlSegmenter', () => {
     });
   });
 
+  test('rejects granularities other than grapheme', () => {
+    withoutNativeSegmenter(() => {
+      installIntlSegmenter();
+      expect(() => new Intl.Segmenter('fa', { granularity: 'word' })).toThrow(
+        RangeError
+      );
+      expect(new Intl.Segmenter('fa').resolvedOptions().locale).toBe('fa');
+      expect(new Intl.Segmenter().resolvedOptions().locale).toBe('en');
+    });
+  });
+
+  test('finds the segment that contains a code unit', () => {
+    withoutNativeSegmenter(() => {
+      installIntlSegmenter();
+      const input = 'a👍🏽b';
+      const segments = new Intl.Segmenter().segment(input);
+      expect(segments.containing(3)).toEqual({
+        segment: '👍🏽',
+        index: 1,
+        input,
+      });
+      expect(segments.containing(9)).toBeUndefined();
+    });
+  });
+
   test('keeps the native segmenter', () => {
     installIntlSegmenter();
     expect(Intl.Segmenter).toBe(nativeSegmenter);
