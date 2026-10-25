@@ -22,8 +22,10 @@ replace the pin with a version range.
 
 `tinode-sdk` is plain JavaScript and ships no types.
 
-- `src/sdk/types.ts` declares the SDK surface: classes as `declare class` (so each name is both the instance type and
-  the constructor), plus the protocol and storage types. It started as the declarations of the old port, which had
+- `src/sdk/types/` declares the SDK surface, one file per area (Drafty, TheCard, storage, topics, wire messages, the
+  client): classes as `declare class` (so each name is both the instance type and the constructor), plus the
+  protocol and storage types. `src/sdk/types/index.ts` lists the public names one by one, so internal helper types
+  stay out of the package API. It started as the declarations of the old port, which had
   the same API, and is aligned with upstream where they differ (`network` option, `setDatabaseProvider`, the socket
   shape upstream uses).
 - `src/sdk/tinode-sdk.d.ts` tells TypeScript what the untyped module exports, using only inline imports from
@@ -36,8 +38,9 @@ are types only. Instances come from the client (`getTopic`, `getMeTopic`, `start
 `isCommError` replaces `instanceof CommError`. `TOPIC_ME`, `LOCAL_SEQID` and `DEFAULT_MESSAGES_PAGE` are not exported
 upstream either; the React layer keeps its own copies in `src/react/constants.ts`.
 
-When `tinode-sdk` changes its API, update `src/sdk/types.ts` by hand. `src/sdk/__tests__/sdk.test.ts` loads the real
-SDK, so a missing export fails there.
+When `tinode-sdk` changes its API, update `src/sdk/types/` by hand. `src/sdk/__tests__/sdk.test.ts` loads the real
+SDK, so a missing export fails there. The goal is to move these declarations into tinode-js, so that `tinode-sdk`
+ships its own types and `src/sdk` shrinks to the re-exports.
 
 ## 4. Hermes polyfills
 

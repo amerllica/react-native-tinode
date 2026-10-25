@@ -4,6 +4,6 @@ Copyright 2026 amerllica
 This product depends on tinode-sdk (tinode-js), https://github.com/tinode/tinode-js,
 Copyright Tinode LLC, licensed under the Apache License, Version 2.0.
 
-The TypeScript declarations in src/sdk/types.ts describe the tinode-sdk API and are
+The TypeScript declarations in src/sdk/types/ describe the tinode-sdk API and are
 derived from its source. The grapheme splitter and UTF-8 decoder in src/platform are
 original work of this project.
