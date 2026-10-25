@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { act } from 'react';
-import { LOCAL_SEQID } from '../../core/config';
+import { LOCAL_SEQID } from '../constants';
 import { FakeClient, makeHistory } from '../__fixtures__/fake-client';
 import { renderHook } from '../__fixtures__/render-hook';
 import { useMessages } from '../useMessages';

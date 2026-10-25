@@ -1,5 +1,5 @@
-import { DEFAULT_MESSAGES_PAGE, TOPIC_ME } from '../core/config';
-import type { GetQuery } from '../core/types';
+import type { GetQuery } from '../sdk';
+import { DEFAULT_MESSAGES_PAGE, TOPIC_ME } from './constants';
 import { ExternalStore, detachAll, ignore } from './external-store';
 import { attach } from './multiplex';
 import type { TopicPort } from './ports';

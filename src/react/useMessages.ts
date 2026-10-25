@@ -1,6 +1,6 @@
 import { useMemo, useSyncExternalStore } from 'react';
-import { DEFAULT_MESSAGES_PAGE } from '../core/config';
-import type { Message } from '../core/types';
+import type { Message } from '../sdk';
+import { DEFAULT_MESSAGES_PAGE } from './constants';
 import { MessagesStore } from './messages-store';
 import type { MessageContent } from './ports';
 import { useTopic } from './useTopic';

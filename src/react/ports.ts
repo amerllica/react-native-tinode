@@ -1,12 +1,12 @@
-import type { DraftyDoc } from '../core/drafty';
 import type {
   AuthToken,
+  DraftyDoc,
   GetQuery,
   InfoMessage,
   Message,
   PubMessage,
   SeqRange,
-} from '../core/types';
+} from '../sdk';
 
 export type MessageContent = string | DraftyDoc;
 

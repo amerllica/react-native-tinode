@@ -1,14 +1,12 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 import { TinodeStoresContext, type TinodeStores } from './context';
-import { subscribeToNetwork, type NetInfoLike } from './netinfo';
 import type { ClientPort } from './ports';
 import { SessionStore } from './session-store';
 import { TopicRegistry } from './topic-registry';
 
 export interface TinodeLifecycleOptions {
   reconnectOnForeground?: boolean;
-  netInfo?: NetInfoLike | null;
   pageSize?: number;
 }
 
@@ -21,7 +19,6 @@ export function TinodeStoresProvider({
   client,
   children,
   reconnectOnForeground = true,
-  netInfo,
   pageSize,
 }: TinodeStoresProviderProps) {
   const stores = useMemo<TinodeStores>(() => {
@@ -35,18 +32,13 @@ export function TinodeStoresProvider({
     if (!reconnectOnForeground) {
       return undefined;
     }
-    const reconnect = () => stores.session.reconnect();
     const appState = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
-        reconnect();
+        stores.session.reconnect();
       }
     });
-    const stopNetwork = subscribeToNetwork(reconnect, netInfo);
-    return () => {
-      appState.remove();
-      stopNetwork();
-    };
-  }, [stores, reconnectOnForeground, netInfo]);
+    return () => appState.remove();
+  }, [stores, reconnectOnForeground]);
 
   return (
     <TinodeStoresContext.Provider value={stores}>

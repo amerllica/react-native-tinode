@@ -1,6 +1,10 @@
 import { Platform } from 'react-native';
-import type { StorageAdapter } from '../core/storage/storage-adapter';
-import { Tinode } from '../core/tinode';
+import {
+  Tinode,
+  type NetInfoLike,
+  type StorageAdapter,
+  type TinodeNetwork,
+} from '../sdk';
 
 export type TinodePlatform = 'ios' | 'android' | 'web';
 
@@ -11,7 +15,9 @@ export interface CreateTinodeOptions {
   secure?: boolean;
   transport?: 'ws' | 'lp';
   persist?: boolean;
-  storage?: StorageAdapter;
+  storage?: StorageAdapter | null;
+  netInfo?: NetInfoLike | null;
+  network?: TinodeNetwork;
   language?: string;
   logging?: boolean;
   onStorageReady?: (error?: unknown) => void;
@@ -32,6 +38,8 @@ export function createTinode(options: CreateTinodeOptions): Tinode {
       platform: detectPlatform(),
       persist: options.persist ?? false,
       storage: options.storage,
+      netInfo: options.netInfo,
+      network: options.network,
     },
     options.onStorageReady
   );

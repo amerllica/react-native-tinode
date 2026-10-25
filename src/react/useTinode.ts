@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import type { Tinode } from '../core/tinode';
+import type { Tinode } from '../sdk';
 import { TinodeClientContext } from './context';
 
 export function useTinode(): Tinode {
