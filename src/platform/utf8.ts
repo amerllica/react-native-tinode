@@ -1,4 +1,16 @@
-const REPLACEMENT_CHAR = '\uFFFD';
+type ByteRange = readonly [number, number];
+
+const REPLACEMENT_CHAR = '�';
+const BYTE_ORDER_MARK = '﻿';
+const CONTINUATION: ByteRange = [0x80, 0xbf];
+const CONTINUATION_BITS = 64;
+const LEAD_PAYLOAD_SIZE = [0x80, 0x20, 0x10, 0x08];
+const SECOND_BYTE_BY_LEAD = new Map<number, ByteRange>([
+  [0xe0, [0xa0, 0xbf]],
+  [0xed, [0x80, 0x9f]],
+  [0xf0, [0x90, 0xbf]],
+  [0xf4, [0x80, 0x8f]],
+]);
 
 function continuationCount(lead: number): number {
   if (lead < 0x80) return 0;
@@ -8,7 +20,20 @@ function continuationCount(lead: number): number {
   return -1;
 }
 
-export function decodeUtf8(bytes: Uint8Array): string {
+function inRange(
+  byte: number | undefined,
+  [low, high]: ByteRange
+): byte is number {
+  return byte !== undefined && byte >= low && byte <= high;
+}
+
+function continuationRange(lead: number, position: number): ByteRange {
+  return position === 1
+    ? (SECOND_BYTE_BY_LEAD.get(lead) ?? CONTINUATION)
+    : CONTINUATION;
+}
+
+function decodeBytes(bytes: Uint8Array): string {
   let result = '';
   let i = 0;
   while (i < bytes.length) {
@@ -19,27 +44,24 @@ export function decodeUtf8(bytes: Uint8Array): string {
       i++;
       continue;
     }
-    let codePoint = extra === 0 ? lead : lead % 2 ** (6 - extra);
+    let codePoint = lead % (LEAD_PAYLOAD_SIZE[extra] ?? 1);
     let consumed = 1;
-    let valid = true;
-    for (let k = 1; k <= extra; k++) {
-      const next = bytes[i + k];
-      if (next === undefined || next < 0x80 || next > 0xbf) {
-        valid = false;
+    while (consumed <= extra) {
+      const next = bytes[i + consumed];
+      if (!inRange(next, continuationRange(lead, consumed))) {
         break;
       }
-      codePoint = codePoint * 64 + (next - 0x80);
+      codePoint = codePoint * CONTINUATION_BITS + (next - CONTINUATION[0]);
       consumed++;
     }
-    const minimum = [0, 0x80, 0x800, 0x10000][extra] ?? 0;
-    const isSurrogate = codePoint >= 0xd800 && codePoint <= 0xdfff;
-    if (!valid || codePoint < minimum || codePoint > 0x10ffff || isSurrogate) {
-      result += REPLACEMENT_CHAR;
-      i += valid ? consumed : Math.max(consumed, 1);
-      continue;
-    }
-    result += String.fromCodePoint(codePoint);
+    result +=
+      consumed > extra ? String.fromCodePoint(codePoint) : REPLACEMENT_CHAR;
     i += consumed;
   }
   return result;
+}
+
+export function decodeUtf8(bytes: Uint8Array): string {
+  const text = decodeBytes(bytes);
+  return text.startsWith(BYTE_ORDER_MARK) ? text.slice(1) : text;
 }

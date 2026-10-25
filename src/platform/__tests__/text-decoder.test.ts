@@ -29,6 +29,14 @@ describe('installTextDecoder', () => {
       expect(decoder.decode(bytes.buffer)).toBe('café € 😀');
       expect(decoder.decode(new Uint8Array([0x61, 0x80, 0x62]))).toBe('a�b');
       expect(decoder.decode()).toBe('');
+      expect(decoder.decode(new Uint8Array([0xe2, 0x82, 0x61]))).toBe('�a');
+      expect(decoder.decode(new Uint8Array([0xc0, 0x80]))).toBe('��');
+      expect(decoder.decode(new Uint8Array([0xed, 0xa0, 0x80]))).toBe('���');
+      expect(
+        decoder.decode(
+          new Uint8Array([0xef, 0xbb, 0xbf, 0x61, 0xef, 0xbb, 0xbf])
+        )
+      ).toBe('a\uFEFF');
       expect(() => new TextDecoder('utf-16le')).toThrow(RangeError);
     });
   });
