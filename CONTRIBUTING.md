@@ -103,7 +103,9 @@ Our pre-commit hooks verify that your commit message matches this format when co
 Releases are published by the `release` job in `.github/workflows/ci.yml` when a version tag is pushed.
 Only maintainers can do this.
 
-1. In a pull request to `main`, bump `version` in `package.json`.
+1. In a pull request to `main`, bump `version` in `package.json` and add the release notes in
+   `docs/releases/vX.Y.Z.md`. Copy the sections of the last release: what the release is for, what changed, what
+   was fixed and who helped.
 2. After the pull request is merged, tag the merge commit on `main` with a tag named `vX.Y.Z`, where
    `X.Y.Z` is the version:
 
@@ -115,7 +117,8 @@ Only maintainers can do this.
 
 The `release` job waits for every CI job to pass, then checks that the tag is on `main` and that it matches
 `package.json`. It publishes to npm with [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (no token,
-with provenance) and creates a GitHub release. If that version is already on npm, it skips the publish and only
+with provenance) and creates a GitHub release with the notes from `docs/releases/vX.Y.Z.md`, or with notes made
+by GitHub when that file is missing. If that version is already on npm, it skips the publish and only
 creates the GitHub release. Only tags of the form
 `vX.Y.Z` with numeric `X`, `Y` and `Z` start a release.
 
