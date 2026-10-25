@@ -1,3 +1,4 @@
+import { defineGlobalIfMissing } from './define-global';
 import { decodeUtf8 } from './utf8';
 
 const UTF8_LABELS = ['utf-8', 'utf8', 'unicode-1-1-utf-8'];
@@ -25,12 +26,5 @@ class Utf8TextDecoder {
 }
 
 export function installTextDecoder(): void {
-  if (Reflect.has(globalThis, 'TextDecoder')) {
-    return;
-  }
-  Object.defineProperty(globalThis, 'TextDecoder', {
-    value: Utf8TextDecoder,
-    configurable: true,
-    writable: true,
-  });
+  defineGlobalIfMissing(globalThis, 'TextDecoder', Utf8TextDecoder);
 }

@@ -1,3 +1,4 @@
+import { defineGlobalIfMissing } from './define-global';
 import { splitGraphemes } from './graphemes';
 
 interface GraphemeSegmentData {
@@ -21,12 +22,8 @@ class GraphemeSegmenter {
 }
 
 export function installIntlSegmenter(): void {
-  if (typeof Intl === 'undefined' || typeof Intl.Segmenter === 'function') {
+  if (typeof Intl === 'undefined') {
     return;
   }
-  Object.defineProperty(Intl, 'Segmenter', {
-    value: GraphemeSegmenter,
-    configurable: true,
-    writable: true,
-  });
+  defineGlobalIfMissing(Intl, 'Segmenter', GraphemeSegmenter);
 }
