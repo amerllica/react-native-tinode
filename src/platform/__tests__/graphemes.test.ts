@@ -1,11 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { splitGraphemesFallback } from '../graphemes';
+import { splitGraphemes } from '../graphemes';
 
 const segmentsOf = (str: string) =>
-  splitGraphemesFallback(str).map(({ segment }) => segment);
+  splitGraphemes(str).map(({ segment }) => segment);
 
-describe('splitGraphemesFallback', () => {
+describe('splitGraphemes', () => {
   test('plain ASCII and Cyrillic', () => {
     expect(segmentsOf('abc')).toEqual(['a', 'b', 'c']);
     expect(segmentsOf('жЫр')).toEqual(['ж', 'Ы', 'р']);
@@ -60,7 +60,7 @@ describe('splitGraphemesFallback', () => {
   });
 
   test('segment index is the UTF-16 offset', () => {
-    expect(splitGraphemesFallback('a😀👋🏼b')).toEqual([
+    expect(splitGraphemes('a😀👋🏼b')).toEqual([
       { segment: 'a', index: 0 },
       { segment: '😀', index: 1 },
       { segment: '👋🏼', index: 3 },

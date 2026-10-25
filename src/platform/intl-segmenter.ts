@@ -1,4 +1,4 @@
-import { splitGraphemesFallback } from './graphemes';
+import { splitGraphemes } from './graphemes';
 
 interface GraphemeSegmentData {
   segment: string;
@@ -8,7 +8,7 @@ interface GraphemeSegmentData {
 
 class GraphemeSegmenter {
   segment(input: string): GraphemeSegmentData[] {
-    return splitGraphemesFallback(input).map(({ segment, index }) => ({
+    return splitGraphemes(input).map(({ segment, index }) => ({
       segment,
       index,
       input,
