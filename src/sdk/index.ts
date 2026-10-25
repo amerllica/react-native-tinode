@@ -31,9 +31,7 @@ export type IndexedDBAdapter = IndexedDBAdapterClass;
 export const KeyValueAdapter: typeof KeyValueAdapterClass = sdk.KeyValueAdapter;
 export type KeyValueAdapter = KeyValueAdapterClass;
 
-export function fromMMKV(mmkv: MMKVLike): KeyValueStore {
-  return sdk.fromMMKV(mmkv);
-}
+export const fromMMKV: (mmkv: MMKVLike) => KeyValueStore = sdk.fromMMKV;
 
 export const MESSAGE_STATUS_NONE = Tinode.MESSAGE_STATUS_NONE;
 export const MESSAGE_STATUS_QUEUED = Tinode.MESSAGE_STATUS_QUEUED;
