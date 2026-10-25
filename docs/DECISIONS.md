@@ -1,73 +1,70 @@
 # Decisions
 
-## 1. Re-implement tinode-js in TypeScript instead of wrapping `tinode-sdk`
+## 1. Wrap `tinode-sdk` instead of porting it
 
-The first plan was to wrap the `tinode-sdk` npm package and add types and shims around it.
-We chose a full TypeScript port instead.
+Until 0.1.x this package carried its own TypeScript port of tinode-js, because `tinode-sdk` assumed a browser and had
+IndexedDB hard-wired. [tinode/tinode-js#103](https://github.com/tinode/tinode-js/pull/103) moved the platform
+dependencies into the SDK's config: `storage` (any storage adapter), `netInfo` (reconnect when the network is back)
+and `network` (`WebSocket` and `XMLHttpRequest`). With that merged, the port has no reason to exist: protocol fixes
+now arrive with `tinode-sdk` instead of being ported by hand.
 
-Reasons:
+This package keeps only what the SDK does not do: React providers and hooks, TypeScript types, and two Hermes
+polyfills (section 4).
 
-- `tinode-sdk` assumes a browser at many points: `window.location` in `LargeFileHelper`,
-  `document` for downloads, `indexedDB` for the cache, `Intl.Segmenter` in Drafty,
-  `navigator.userAgent` in the constructor, and an import-time shim that writes `global.window`.
-  Shimming these from outside the bundle is fragile and changes global state for the whole app.
-- The SDK has no types. Hand-written `.d.ts` files drift from the runtime.
-- Storage is hard-wired to IndexedDB. A port lets us put storage behind an adapter now,
-  without an upstream change.
+## 2. `tinode-sdk` is pinned to a GitHub commit until the next release
 
-Cost: protocol fixes in upstream do not arrive automatically. Track upstream releases and port
-relevant changes by hand. The port targets tinode-js **v0.25.4**; `VERSION` in
-`src/core/config.ts` is the version sent to the server and must match the ported feature level.
+The merged work is on the tinode-js `devel` branch and not on npm yet, so `package.json` depends on
+`github:tinode/tinode-js#commit=<sha>`. Yarn downloads that commit, runs `npm install` and `npm pack` in it once, and
+stores the packed checksum in `yarn.lock`, so CI installs are reproducible. When a release with the change is on npm,
+replace the pin with a version range.
 
-## 2. Module layout mirrors upstream
+## 3. Types live in `src/sdk`
 
-`src/core/*.ts` keeps upstream file names, class names, method names and argument order.
-This keeps the port easy to diff against upstream releases and keeps the public API familiar to
-existing Tinode users.
+`tinode-sdk` is plain JavaScript and ships no types.
 
-## 3. Storage is an adapter
+- `src/sdk/types.ts` declares the SDK surface: classes as `declare class` (so each name is both the instance type and
+  the constructor), plus the protocol and storage types. It started as the declarations of the old port, which had
+  the same API, and is aligned with upstream where they differ (`network` option, `setDatabaseProvider`, the socket
+  shape upstream uses).
+- `src/sdk/tinode-sdk.d.ts` tells TypeScript what the untyped module exports, using only inline imports from
+  `./types`, so emitted declarations never refer to `tinode-sdk` itself.
+- `src/sdk/index.ts` re-exports the values with those types. Constants that upstream only has as `Tinode` statics
+  (`MESSAGE_STATUS_*`, `DEL_CHAR`) are exported as plain constants.
 
-`StorageAdapter` (`src/core/storage/storage-adapter.ts`) is a small record-based interface with
-no SDK classes in it. `PersistentCache` does all Topic ↔ record mapping and keeps the upstream
-`DB` method names.
+Upstream does not export `Topic`, `TopicMe`, `TopicFnd`, `CommError`, `MetaGetBuilder` or `LargeFileHelper`, so they
+are types only. Instances come from the client (`getTopic`, `getMeTopic`, `startMetaQuery`, `getLargeFileHelper`).
+`isCommError` replaces `instanceof CommError`. `TOPIC_ME`, `LOCAL_SEQID` and `DEFAULT_MESSAGES_PAGE` are not exported
+upstream either; the React layer keeps its own copies in `src/react/constants.ts`.
 
-- Web: `IndexedDBAdapter` uses the same database name, version and schema as upstream, so an
-  existing browser cache stays valid.
-- Native: `KeyValueAdapter` wraps any key-value store the app already has (`expo-sqlite/kv-store`,
-  MMKV through `fromMMKV`, AsyncStorage). The library imports none of them, so it keeps zero
-  dependencies and still runs in Expo Go. The store's shape is a TypeScript interface, and a test
-  checks it against each store's published typings.
-- `KeyValueAdapter` extends `MemoryAdapter`: it loads the whole cache on open and writes every
-  change through. That is fine for contacts and recent chats. A SQLite adapter for large offline
-  histories is planned for 0.2.0 (issue #1).
-- No eviction: the cache keeps every message it has seen, like the upstream web client.
-- `MemoryAdapter` exists for tests and for a session-only cache.
+When `tinode-sdk` changes its API, update `src/sdk/types.ts` by hand. `src/sdk/__tests__/sdk.test.ts` loads the real
+SDK, so a missing export fails there.
 
-`Tinode.setDatabaseProvider()` from upstream is removed. Use the `storage` config key.
+## 4. Hermes polyfills
 
-## 4. Platform rules
+`tinode-sdk` calls `new Intl.Segmenter()` when it loads (Drafty) and uses `TextDecoder` for vCard import. Hermes
+has neither. `src/platform` installs a grapheme-only `Intl.Segmenter` and a UTF-8-only `TextDecoder`, each only when
+the global is missing, and `src/index.tsx` imports it before the SDK. `package.json` lists `src/platform` and
+`lib/module/platform` in `sideEffects`, so web bundlers keep the import.
 
-- No browser globals without a `typeof` guard. No writes to globals.
-- `Intl.Segmenter` is missing on Hermes: Drafty uses a fallback grapheme splitter.
-- `TextDecoder` may be missing: TheCard has a UTF-8 fallback.
-- `new Blob([ArrayBuffer])` and object URLs for such Blobs throw on React Native: code falls
-  back to `data:` URIs.
-- `LargeFileHelper.download()` saves the file through the DOM on web (upstream behaviour). Where
-  there is no DOM it resolves with the downloaded `Blob`; saving it is the app's job.
-- `LargeFileHelper.upload()` accepts a React Native file descriptor `{ uri, name, type }` as
-  well as a web `Blob`/`File`.
+These go away when tinode-js ships its own fallbacks (planned as the next upstream PR, together with downloads without
+a DOM). Until then `LargeFileHelper.download()` works on the web only.
 
 ## 5. React layer
 
-Hooks live in `src/react`. Tinode callbacks are single-slot properties, so the hooks attach
-listeners through a small multiplexer instead of overwriting app callbacks.
-NetInfo is not a dependency, not even an optional one. A guarded `require` of an optional package
-breaks bare React Native builds, because Metro defaults `allowOptionalDependencies` to `false`.
-Apps that want reconnect on network change pass their NetInfo module to the provider
-(`netInfo={NetInfo}`). Without it, reconnect still happens on `AppState` change and through the
-SDK's own backoff.
+Hooks live in `src/react`. Tinode callbacks are single-slot properties, so the hooks attach listeners through a small
+multiplexer instead of overwriting app callbacks.
 
-## 6. License
+NetInfo is not a dependency, not even an optional one. A guarded `require` of an optional package breaks bare React
+Native builds, because Metro defaults `allowOptionalDependencies` to `false`. Apps that want a fast reconnect pass
+their NetInfo module in the config (`netInfo: NetInfo`); the SDK then retries at once when the network comes back.
+The provider still reconnects on `AppState` change.
 
-The port is a derivative work of tinode-js (Apache-2.0). This package is released under
-Apache-2.0, with attribution in `NOTICE`.
+## 6. Storage
+
+Storage adapters come from `tinode-sdk`: `IndexedDBAdapter` (the default in browsers when `persist` is on),
+`KeyValueAdapter` over any key-value store the app already has (`expo-sqlite/kv-store`, MMKV through `fromMMKV`,
+AsyncStorage) and `MemoryAdapter`. This package imports none of the stores, so it still runs in Expo Go.
+
+## 7. License
+
+This package is released under Apache-2.0. It depends on tinode-sdk (Apache-2.0), with attribution in `NOTICE`.

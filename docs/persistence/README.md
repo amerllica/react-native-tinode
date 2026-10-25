@@ -14,7 +14,7 @@ The cache is never the source of truth. The server is. Deleting the cache loses 
 | Bare React Native, or an Expo development build that wants the fastest store | `react-native-mmkv` | [mmkv.md](mmkv.md) |
 | Already uses AsyncStorage | `@react-native-async-storage/async-storage` | [async-storage.md](async-storage.md) |
 | Web | nothing to do: `persist: true` uses IndexedDB | below |
-| Thousands of messages per chat kept offline | SQLite adapter, planned for 0.2.0 | [issue #1](https://github.com/amerllica/react-native-tinode/issues/1) |
+| Thousands of messages per chat kept offline | SQLite adapter, planned | [issue #1](https://github.com/amerllica/react-native-tinode/issues/1) |
 
 The login token does not belong in this cache. See [auth-token.md](auth-token.md).
 
