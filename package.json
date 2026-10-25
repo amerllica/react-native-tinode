@@ -1,6 +1,6 @@
 {
   "name": "react-native-tinode",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "React and React Native hooks for Tinode chat, on top of the official tinode-sdk",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
