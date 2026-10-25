@@ -18,6 +18,9 @@ The merged work is on the tinode-js `devel` branch and not on npm yet, so `packa
 stores the packed checksum in `yarn.lock`, so CI installs are reproducible. When a release with the change is on npm,
 replace the pin with a version range.
 
+The pin also reaches every app that installs this package: their install fetches tinode-js from GitHub and needs
+`git` and `npm`. Each release note says so until the pin is gone.
+
 ## 3. Types live in `src/sdk`
 
 `tinode-sdk` is plain JavaScript and ships no types.
@@ -60,7 +63,8 @@ multiplexer instead of overwriting app callbacks.
 NetInfo is not a dependency, not even an optional one. A guarded `require` of an optional package breaks bare React
 Native builds, because Metro defaults `allowOptionalDependencies` to `false`. Apps that want a fast reconnect pass
 their NetInfo module in the config (`netInfo: NetInfo`); the SDK then retries at once when the network comes back.
-The provider still reconnects on `AppState` change.
+The provider still reconnects on `AppState` change: `AppState` is React Native only, and the SDK has no app
+lifecycle hook, so the foreground reconnect belongs to the React layer.
 
 ## 6. Storage
 

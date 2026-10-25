@@ -16,7 +16,8 @@ yarn add react-native-tinode
 
 `tinode-sdk` comes with it. Until the next `tinode-sdk` release is on npm, it is installed from a pinned commit of
 the [tinode-js](https://github.com/tinode/tinode-js) `devel` branch, so installing needs `git` and `npm` on the
-machine (both are on CI runners and EAS build images).
+machine and access to github.com (all three are on CI runners and EAS build images). Networks that block git or
+GitHub cannot install it until then.
 
 ## Quick start
 
