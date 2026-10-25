@@ -24,18 +24,6 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/core/**/*.ts'],
-    rules: {
-      'no-bitwise': 'off',
-    },
-  },
-  {
-    files: ['src/core/__tests__/drafty.test.ts'],
-    rules: {
-      'no-script-url': 'off',
-    },
-  },
-  {
     ignores: ['node_modules/', 'lib/'],
   },
 ]);
