@@ -1,23 +1,13 @@
 import { Platform } from 'react-native';
-import {
-  Tinode,
-  type NetInfoLike,
-  type StorageAdapter,
-  type TinodeNetwork,
-} from '../sdk';
+import { Tinode, type TinodeConfig } from '../sdk';
 
 export type TinodePlatform = 'ios' | 'android' | 'web';
 
-export interface CreateTinodeOptions {
+export interface CreateTinodeOptions extends Omit<
+  TinodeConfig,
+  'appName' | 'platform'
+> {
   appName: string;
-  host: string;
-  apiKey: string;
-  secure?: boolean;
-  transport?: 'ws' | 'lp';
-  persist?: boolean;
-  storage?: StorageAdapter | null;
-  netInfo?: NetInfoLike | null;
-  network?: TinodeNetwork;
   language?: string;
   logging?: boolean;
   onStorageReady?: (error?: unknown) => void;
@@ -27,25 +17,24 @@ export function detectPlatform(os: string = Platform.OS): TinodePlatform {
   return os === 'ios' || os === 'android' ? os : 'web';
 }
 
-export function createTinode(options: CreateTinodeOptions): Tinode {
+export function createTinode({
+  language,
+  logging = false,
+  onStorageReady,
+  ...config
+}: CreateTinodeOptions): Tinode {
   const client = new Tinode(
     {
-      appName: options.appName,
-      host: options.host,
-      apiKey: options.apiKey,
-      secure: options.secure ?? true,
-      transport: options.transport,
+      ...config,
+      secure: config.secure ?? true,
+      persist: config.persist ?? false,
       platform: detectPlatform(),
-      persist: options.persist ?? false,
-      storage: options.storage,
-      netInfo: options.netInfo,
-      network: options.network,
     },
-    options.onStorageReady
+    onStorageReady
   );
-  if (options.language) {
-    client.setHumanLanguage(options.language);
+  if (language) {
+    client.setHumanLanguage(language);
   }
-  client.enableLogging(options.logging ?? false, true);
+  client.enableLogging(logging, true);
   return client;
 }
